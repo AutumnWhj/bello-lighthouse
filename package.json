@@ -1,0 +1,22 @@
+{
+  "name": "lighthouse",
+  "version": "1.0.0",
+  "description": "lighthouse测试工具",
+  "main": "index.js",
+  "scripts": {
+    "mobile": "gulp start-mobile",
+    "desktop": "gulp start-desktop",
+    "clean": "gulp clean:report",
+    "create:report-desktop": "gulp create:report-desktop",
+    "create:report-mobile": "gulp create:report-desktop"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chrome-launcher": "^0.13.4",
+    "del": "^6.0.0",
+    "fs-extra": "^9.1.0",
+    "gulp": "^4.0.2",
+    "lighthouse": "^7.3.0"
+  }
+}

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <title>lighthouse测试工具</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        background: #282c34;
+        color: #fff;
+      }
+      table {
+        margin: auto;
+        width:100%; 
+        height:100%
+      }
+      a {
+        color: #fff;
+      }
+      a:hover{
+        color: #45abdc;
+      }
+      .table-url{
+        text-align: left;
+      }
+      .table-url a{
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        overflow: hidden;
+        width: 500px;
+      }
+      .green-color{
+        color: #0cce6b;
+      }
+      .orange-color{
+        color:#FFA400
+      }
+      .red-color{
+        color:#ff4e42
+      }
+      tr {
+        border: 1px solid grey;
+      }
+      tr:nth-child(even) {
+        background: #373d49;
+      }
+      tr:nth-child(odd) {
+        background: #2c313c;
+      }
+      th{
+        background: #535b6d;
+        padding: 10px 0;
+      }
+      td{
+        padding: 5px;
+      }
+      h1 {
+        text-align: center;
+        margin: 30px auto 10px auto
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <h1>lighthouse测试工具</h1>
+      <h2>lighthouse version:<span id="lighthouseVersion" class="green-color"></span></h2>
+      <tr>
+        <th>
+          URL
+        </th>
+        <th>
+          性能评分
+        </th>
+        <th>
+          辅助功能评分
+        </th>
+        <th>
+          最佳实践评分
+        </th>
+        <th>
+          SEO评分
+        </th>
+        <th>
+          PWA评分
+        </th>
+        <th>
+          首屏渲染时间
+        </th>
+        <th>
+          Link
+        </th>
+      </tr>
+      <tbody id="tableBody">
+      </tbody>
+    </table>
+    <script>
+      let timespent = %%TIME_SPENT%%;
+      let timestamp = %%TIMESTAMP%%;
+      let tableBody = document.getElementById("tableBody");
+      let lighthouseVersion = document.getElementById("lighthouseVersion")
+      lighthouseVersion.innerText = timespent[0].lighthouseVersion
+      let content = '';
+      for(let i=0; i < timespent.length; i++) {
+        //console.log(timespent[i])
+        let firstContentfulPaint = timespent[i].audits["first-contentful-paint"]
+        let categories = timespent[i].categories
+        console.log(categories)
+        content += `<tr style="border: 1px solid grey">
+          <td class="table-url">
+            <a href='${timespent[i].requestedUrl}' target="_blank">${decodeURI(timespent[i].requestedUrl)}</a>
+          </td>
+          <td>
+            ${getColorText(categories.performance.score,"score")}
+          </td>
+          <td>
+            ${getColorText(categories.accessibility.score,"score")}
+          </td>
+          <td>
+            ${getColorText(categories['best-practices'].score,"score")}
+          </td>
+          <td>
+            ${getColorText(categories.seo.score,"score")}
+          </td>
+          <td>
+            ${getColorText(categories.pwa.score,"score")}
+          </td>
+          <td>
+            ${getColorText(firstContentfulPaint.numericValue,"time")}
+          </td>
+          <td>
+            <a href="../../cases/lighthouse-report@${timestamp}-${i}.html">View Details</a>
+          </td>
+        </tr>`
+      }
+      let totalFirstContentfulPaint = 0
+      let totalPerformanceScore = 0
+      let totalAccessibilityScore = 0
+      let totalBestPracticesScore = 0
+      let totalSeoScore = 0
+      let totalPwaScore = 0
+      for(let item of timespent){
+        totalFirstContentfulPaint += item.audits["first-contentful-paint"].numericValue
+        totalPerformanceScore += item.categories.performance.score
+        totalAccessibilityScore += item.categories.accessibility.score
+        totalBestPracticesScore += item.categories["best-practices"].score
+        totalSeoScore += item.categories.seo.score
+        totalPwaScore += item.categories.pwa.score
+      }
+
+      let count = timespent.filter(function(i) { return i}).length
+      content += `<tr>
+        <td width="500">
+          平均
+        </td>
+        <td>
+          ${getColorText(totalPerformanceScore/count,"score")}
+        </td>
+        <td>
+          ${getColorText(totalAccessibilityScore/count,"score")}
+        </td>
+        <td>
+          ${getColorText(totalBestPracticesScore/count,"score")}
+        </td>
+        <td>
+          ${getColorText(totalSeoScore/count,"score")}
+        </td>
+        <td>
+          ${getColorText(totalPwaScore/count,"score")}
+        </td>
+        <td>
+          ${getColorText(totalFirstContentfulPaint/count,"time")}
+        </td>
+        <td>
+        </td>
+      </tr>`
+      tableBody.innerHTML = content;
+
+      function getColorText(data,type){
+        if(type == "time"){
+          if(data<1000){
+            return `<span class="green-color">${(data/1000).toFixed(2)}s</span>`
+          }else if(data>=1000&&data<5000){
+            return `<span class="orange-color">${(data/1000).toFixed(2)}s</span>`
+          }else{
+            return `<span class="red-color">${(data/1000).toFixed(2)}s</span>`
+          }
+        }else if(type == "score"){
+          if(data>=0.9){
+            return `<span class="green-color">${(data*100).toFixed(2)}</span>`
+          }else if(data>=0.5&&data<0.9){
+            return `<span class="orange-color">${(data*100).toFixed(2)}</span>`
+          }else{
+            return `<span class="red-color">${(data*100).toFixed(2)}</span>`
+          }
+        }else{
+          return data
+        }
+      }
+    </script>
+  </body>
+</html>
